@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import QuartzCore
+import UIKit
 
 // Coasting
 // Drag due to friction is (generally) directly-proportional to velocity (but in the opposite direction).
@@ -63,10 +65,10 @@ public func distance_total(v0:Double, r:Double, vmin:Double) -> Double {
 }
 
 //
-// An instance of Coasting encapsulates coasting with a fixed r and vmin.
+// An instance of CoastingEnvironment encapsulates coasting with a fixed r and vmin.
 // The newInstanceWithStartingVelocity method can be used to track a specific coasting instance.
 //
-public class Coasting {
+public class CoastingEnvironment {
     let r:Double
     let ln_r:Double
     let vmin:Double
@@ -122,21 +124,23 @@ public class Coasting {
         return log(inner)/ln_r
     }
     
-    public func newInstanceWithStartingVelocity(v0:Double) -> CoastingInstance {
-        return CoastingInstance(r:self.r, vmin:self.vmin, v0:v0)
+    public func newControllerWithStartingVelocity(v0:Double) -> CoastingController {
+        return CoastingController(r:self.r, vmin:self.vmin, v0:v0)
     }
 }
 
 //
-// CoastingInstance tracks coasting from a particular starting velocity.
+// CoastingController tracks coasting from a particular starting velocity.
 //
-public class CoastingInstance : Coasting {
+public class CoastingController : CoastingEnvironment {
     let v0:Double
-
+    
     private var tf:Double
     private var df:Double
     private var needTf:Bool
     private var needDf:Bool
+    private var startTime:CFTimeInterval
+    private var displayLink:CADisplayLink?
     
     init(r: Double, vmin: Double, v0: Double) {
         self.v0 = v0
@@ -144,6 +148,7 @@ public class CoastingInstance : Coasting {
         self.needTf = true
         self.df = 0.0
         self.needDf = true
+        self.startTime = CFTimeInterval.NaN
         super.init(r:r, vmin:vmin)
     }
     
@@ -175,4 +180,103 @@ public class CoastingInstance : Coasting {
         return super.t_from_distance(v0, distance:distance)
     }
     
+    func keyFrameAnimation(x0:CGFloat) -> CAKeyframeAnimation {
+        let animation = CAKeyframeAnimation(keyPath: "position.x")
+        let interval = t_stop / 16.0;
+        let pairs = (0..<16).map { (i:Int) -> (d:CGFloat, t:NSTimeInterval) in
+            let t = Double(i)*interval
+            let x = x0 + CGFloat(distance(t))
+            return (x, t)
+        }
+        let times = pairs.map { (e:(d:CGFloat, t:NSTimeInterval)) -> NSNumber in
+            return NSNumber(double:e.t)
+        }
+        let values = pairs.map { (e:(d:CGFloat, t:NSTimeInterval)) -> NSNumber in
+            return NSNumber(double:e.d.native)
+        }
+        animation.keyTimes = times
+        animation.values = values
+        animation.fillMode = kCAFillModeBoth
+        animation.calculationMode = kCAAnimationPaced
+        return animation
+    }
+
+    private func displayLink(dl:CADisplayLink) {
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(0.0)
+        CATransaction.setDisableActions(true)
+        let t = currentTime
+        let vx = vt(t)
+        let dx = distance(t)
+        coasting(t, velocity:vx, distance:dx)
+        let t_prime = currentTime
+        CATransaction.commit()
+        if (t_prime - t >= 1.0/60.0) {
+            NSLog("coasting call took more than 1/60th sec! (\(t_prime - t) sec)")
+        }
+        if (t >= endTime) {
+            dl.invalidate()
+            if dl == displayLink {
+                displayLink = nil
+                didEndCoast(t)
+            }
+        }
+    }
+    
+    private func willStartCoast() {
+        print("willStartCoast")
+    }
+    private func coasting(t:CFTimeInterval, velocity:Double, distance:Double) {
+        print("coasting: \(t), \(velocity), \(distance)")
+    }
+    private func didEndCoast(t:CFTimeInterval) {
+        print("didEndCoast(\(t))")
+    }
+    private func didCancelCoast() {
+        print("didCancelCoast")
+    }
+    
+    public var currentTime : CFTimeInterval {
+        return CACurrentMediaTime() - self.startTime
+    }
+    
+    public var endTime : CFTimeInterval {
+        return t_stop
+    }
+    
+    public func isRunning() -> Bool {
+        return !startTime.isNaN
+    }
+    
+    func stop() {
+        if !self.startTime.isNaN {
+            self.didCancelCoast()
+        }
+        
+        guard let link = self.displayLink else {
+            return;
+        }
+        link.invalidate()
+        self.displayLink = nil
+        self.startTime = CFTimeInterval.NaN
+    }
+    
+    func start(screen:UIScreen) -> Void {
+        stop()
+        startTime = CACurrentMediaTime()
+        willStartCoast()
+        displayLink = screen.displayLinkWithTarget(self, selector: "displayLink")
+        displayLink?.frameInterval = 2
+        displayLink?.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSRunLoopCommonModes)
+    }
+    
+    public func invalidate() {
+        // invalidate the displayLink, cancel coast if in-progress
+        stop()
+    }
+    
+}
+
+class CoastingGestureRecognizer : UIPanGestureRecognizer {
+
 }
