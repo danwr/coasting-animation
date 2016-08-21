@@ -4,27 +4,26 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, BSPanningAxis) {
-	BSPanningAxisNone,
-	BSPanningAxisHorizontal,
-	BSPanningAxisVertical
+typedef NS_ENUM(NSInteger, BSScrubbingAxis) {
+	BSScrubbingAxisHorizontal,
+	BSScrubbingAxisVertical
 };
 
 @class BSScrubbingGestureRecognizer;
 
-@protocol BSPanAndCoastDelegate <NSObject>
-- (void)panAndCoastGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didRestingTouch:(UITouch *)touch;
-- (void)panAndCoastGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didStopRestingTouch:(UITouch *)touch;
+@protocol BSScrubbingGestureRecognizer <NSObject>
+- (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didRestingTouch:(UITouch *)touch;
+- (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didStopRestingTouch:(UITouch *)touch;
 
-- (void)panAndCoastGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didMoveOnAxis:(CGFloat)distance velocity:(CGFloat)velocity;
-- (void)panAndCoastGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer willCoastWithInitialVelocity:(CGFloat)v0;
-- (void)didCancelPanAndCoastGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer;
+- (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didMoveOnAxis:(CGFloat)distance velocity:(CGFloat)velocity;
+- (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer willCoastWithInitialVelocity:(CGFloat)v0;
+- (void)didCancelScrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer;
 
 @end
 
 @interface BSScrubbingGestureRecognizer : UIGestureRecognizer
-@property (nonatomic) BSPanningAxis panningAxis; // default: BSPanningAxisHorizontal
-@property (nonatomic, weak) id<BSPanAndCoastDelegate> panAndCoastDelegate;
+@property (nonatomic) BSScrubbingAxis scrubbingAxis; // default: BSScrubbingAxisHorizontal
+@property (nonatomic, weak) id<BSScrubbingGestureRecognizer> scrubbingGestureDelegate;
 
 @property (nonatomic, readonly, getter = isTouching) BOOL touching;
 @end

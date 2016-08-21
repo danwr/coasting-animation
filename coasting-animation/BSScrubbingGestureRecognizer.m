@@ -44,7 +44,7 @@ NS_INLINE int sign(CGFloat x) {
         _movementScale = 0.1; // Sliding the full width of the touch surface moves 1/10 of the way across the screen.
         // The maximum distance covered by a single, isolated scrub gesture (ignoring momentum).
         _maximumDistanceCoveredByIsolatedScrub = screenWidth * _movementScale;
-		_panningAxis = BSPanningAxisHorizontal;
+		_scrubbingAxis = BSScrubbingAxisHorizontal;
         _minimumOnAxisMovement = screenWidth / 96.0; // This is 20px on 1080p screens
 		_maximumOffAxisMovement = _minimumOnAxisMovement * 1.5;
         _maximumVelocity = screenWidth * _movementScale;
@@ -65,13 +65,13 @@ NS_INLINE int sign(CGFloat x) {
 - (void)_beginRestingTouch
 {
 	[self setResting:YES];
-	[self.panAndCoastDelegate panAndCoastGestureRecognizer:self didRestingTouch:self.lastTouch];
+	[self.scrubbingGestureDelegate scrubbingGestureRecognizer:self didRestingTouch:self.lastTouch];
 }
 
 - (void)_endRestingTouch
 {
 	if (self.resting) {
-		[self.panAndCoastDelegate panAndCoastGestureRecognizer:self didStopRestingTouch:self.lastTouch];
+		[self.scrubbingGestureDelegate scrubbingGestureRecognizer:self didStopRestingTouch:self.lastTouch];
 		[self setResting:NO];
 	}
 }
@@ -91,27 +91,27 @@ NS_INLINE int sign(CGFloat x) {
 
 - (CGFloat)_onAxisMovement:(CGPoint)delta
 {
-	return ((self.panningAxis == BSPanningAxisVertical) ? delta.y : delta.x)*_movementScale;
+	return ((self.scrubbingAxis == BSScrubbingAxisVertical) ? delta.y : delta.x)*_movementScale;
 }
 
 - (CGFloat)_offAxisMovement:(CGPoint)delta
 {
-	return ((self.panningAxis == BSPanningAxisVertical) ? delta.x : delta.y)*_movementScale;
+	return ((self.scrubbingAxis == BSScrubbingAxisVertical) ? delta.x : delta.y)*_movementScale;
 }
 
 - (void)didMoveOnAxisDistance:(CGFloat)distance velocity:(CGFloat)velocity
 {
-	[self.panAndCoastDelegate panAndCoastGestureRecognizer:self didMoveOnAxis:distance velocity:velocity];
+	[self.scrubbingGestureDelegate scrubbingGestureRecognizer:self didMoveOnAxis:distance velocity:velocity];
 }
 
 - (void)didCancelPan
 {
-	[self.panAndCoastDelegate didCancelPanAndCoastGestureRecognizer:self];
+	[self.scrubbingGestureDelegate didCancelScrubbingGestureRecognizer:self];
 }
 
 - (void)willCoastWithInitialVelocity:(CGFloat)velocity
 {
-	[self.panAndCoastDelegate panAndCoastGestureRecognizer:self willCoastWithInitialVelocity:velocity];
+	[self.scrubbingGestureDelegate scrubbingGestureRecognizer:self willCoastWithInitialVelocity:velocity];
 }
 
 #pragma mark -
