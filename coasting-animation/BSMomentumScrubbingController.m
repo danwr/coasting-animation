@@ -11,7 +11,7 @@
 #import "BSCoastingController.h"
 #import "BSScrubbingGestureRecognizer.h"
 
-@interface BSMomentumScrubbingController () <scrubbingGestureRecognizer, BSCoastingControllerDelegate>
+@interface BSMomentumScrubbingController () <BSScrubbingGestureDelegate, BSCoastingControllerDelegate>
 @property (nonatomic) BSCoastingController *coastingController;
 @property (nonatomic) CGPoint positionAtCoastingStart;
 @end
@@ -33,8 +33,8 @@ NS_INLINE double pinf(double min, double max, double v)
         _coastingController = [[BSCoastingController alloc] initWithCoastingModel:coastingModel];
         [_coastingController setDelegate:self];
         _gestureRecognizer = [[BSScrubbingGestureRecognizer alloc] initWithTarget:self action:@selector(panAndCoastGesture:)];
-        [_gestureRecognizer setPanningAxis:BSScrubbingAxisHorizontal];
-        [_gestureRecognizer setPanAndCoastDelegate:self];
+        [_gestureRecognizer setScrubbingAxis:BSScrubbingAxisHorizontal];
+        [_gestureRecognizer setScrubbingGestureDelegate:self];
     }
     return self;
 }
@@ -55,7 +55,7 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (BOOL)isCoasting
 {
-    return [self.coastingController isRunning];
+    return [self.coastingController isCoasting];
 }
 
 - (BOOL)isTouching
@@ -89,8 +89,7 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer willCoastWithInitialVelocity:(CGFloat)v0
 {
-    [self.coastingController setInitialVelocity:v0];
-    [self.coastingController startForScreen:[UIScreen mainScreen]];
+    [self.coastingController startCoastingWithInitialVelocity:v0];
 }
 
 - (void)didCancelScrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer
@@ -100,7 +99,6 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didRestingTouch:(UITouch *)touch
 {
-    
 }
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didStopRestingTouch:(UITouch *)touch

@@ -11,7 +11,7 @@ typedef NS_ENUM(NSInteger, BSScrubbingAxis) {
 
 @class BSScrubbingGestureRecognizer;
 
-@protocol BSScrubbingGestureRecognizer <NSObject>
+@protocol BSScrubbingGestureDelegate <NSObject>
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didRestingTouch:(UITouch *)touch;
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didStopRestingTouch:(UITouch *)touch;
 
@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, BSScrubbingAxis) {
 
 @interface BSScrubbingGestureRecognizer : UIGestureRecognizer
 @property (nonatomic) BSScrubbingAxis scrubbingAxis; // default: BSScrubbingAxisHorizontal
-@property (nonatomic, weak) id<BSScrubbingGestureRecognizer> scrubbingGestureDelegate;
+@property (nonatomic, weak) id<BSScrubbingGestureDelegate> scrubbingGestureDelegate;
 
 @property (nonatomic, readonly, getter = isTouching) BOOL touching;
 @end
