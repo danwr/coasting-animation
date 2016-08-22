@@ -7,15 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2D8A42B21BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D8A42B01BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h */; settings = {ASSET_TAGS = (); }; };
-		2D8A42B31BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D8A42B11BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m */; settings = {ASSET_TAGS = (); }; };
+		2D8A42B21BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D8A42B01BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h */; };
+		2D8A42B31BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D8A42B11BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m */; };
+		97027E2F1CC6E47200CC8176 /* BSDAGNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 97027E2D1CC6E47200CC8176 /* BSDAGNode.h */; };
+		97027E301CC6E47200CC8176 /* BSDAGNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 97027E2E1CC6E47200CC8176 /* BSDAGNode.m */; };
 		97AA63071BD5B04A00414D39 /* coasting-animation.h in Headers */ = {isa = PBXBuildFile; fileRef = 97AA63061BD5B04A00414D39 /* coasting-animation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		97AA630F1BD5B06500414D39 /* CoastingMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AA630E1BD5B06500414D39 /* CoastingMath.swift */; settings = {ASSET_TAGS = (); }; };
+		97AA630F1BD5B06500414D39 /* CoastingMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AA630E1BD5B06500414D39 /* CoastingMath.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2D8A42B01BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSPanAndCoastGestureRecognizer.h; sourceTree = "<group>"; };
 		2D8A42B11BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSPanAndCoastGestureRecognizer.m; sourceTree = "<group>"; };
+		97027E2D1CC6E47200CC8176 /* BSDAGNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSDAGNode.h; sourceTree = "<group>"; };
+		97027E2E1CC6E47200CC8176 /* BSDAGNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSDAGNode.m; sourceTree = "<group>"; };
 		97AA63031BD5B04A00414D39 /* coasting-animation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "coasting-animation.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AA63061BD5B04A00414D39 /* coasting-animation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "coasting-animation.h"; sourceTree = "<group>"; };
 		97AA63081BD5B04A00414D39 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -55,6 +59,8 @@
 				97AA63061BD5B04A00414D39 /* coasting-animation.h */,
 				97AA63081BD5B04A00414D39 /* Info.plist */,
 				97AA630E1BD5B06500414D39 /* CoastingMath.swift */,
+				97027E2D1CC6E47200CC8176 /* BSDAGNode.h */,
+				97027E2E1CC6E47200CC8176 /* BSDAGNode.m */,
 				2D8A42B01BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h */,
 				2D8A42B11BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m */,
 			);
@@ -69,6 +75,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97AA63071BD5B04A00414D39 /* coasting-animation.h in Headers */,
+				97027E2F1CC6E47200CC8176 /* BSDAGNode.h in Headers */,
 				2D8A42B21BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -142,6 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D8A42B31BD8A62B0062350A /* BSPanAndCoastGestureRecognizer.m in Sources */,
+				97027E301CC6E47200CC8176 /* BSDAGNode.m in Sources */,
 				97AA630F1BD5B06500414D39 /* CoastingMath.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
