@@ -1,6 +1,5 @@
 //
 //  BSMomentumScrubbingController.m
-//  coasting-animation
 //
 //  Created by Dan Wright on 8/19/16.
 //  Copyright © 2016 Dan Wright. All rights reserved.
@@ -32,14 +31,14 @@ NS_INLINE double pinf(double min, double max, double v)
         BSCoastingModel *coastingModel = [[BSCoastingModel alloc] initWithCoefficientOfResistance:CoefficientOfResistance minimumCoastingSpeed:MinimumCoastingSpeed];
         _coastingController = [[BSCoastingController alloc] initWithCoastingModel:coastingModel];
         [_coastingController setDelegate:self];
-        _gestureRecognizer = [[BSScrubbingGestureRecognizer alloc] initWithTarget:self action:@selector(panAndCoastGesture:)];
+        _gestureRecognizer = [[BSScrubbingGestureRecognizer alloc] initWithTarget:self action:@selector(scrubbingGesture:)];
         [_gestureRecognizer setScrubbingAxis:BSScrubbingAxisHorizontal];
         [_gestureRecognizer setScrubbingGestureDelegate:self];
     }
     return self;
 }
 
-- (void)panAndCoastGesture:(BSScrubbingGestureRecognizer *)gestureRecognizer
+- (void)scrubbingGesture:(BSScrubbingGestureRecognizer *)gestureRecognizer
 {
     // This space intentionally left blank.
 }
@@ -66,7 +65,6 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)setPosition:(CGPoint)position
 {
-//    NSLog(@"changing position from %@ to %@", NSStringFromCGPoint(_position), NSStringFromCGPoint(position));
     _position = position;
 }
 
@@ -74,7 +72,8 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didMoveOnAxis:(CGFloat)distance velocity:(CGFloat)velocity
 {
-    [self.coastingController stop];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedStopCoasting) object:nil];
+    // Note: iff velocity is *opposite* of coasting velocity, we should stop coasting here.
     CGPoint adjustedPosition = self.position;
     if (self.gestureRecognizer.scrubbingAxis == BSScrubbingAxisHorizontal) {
         adjustedPosition.x += distance;
@@ -89,6 +88,7 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer willCoastWithInitialVelocity:(CGFloat)v0
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedStopCoasting) object:nil];
     [self.coastingController startCoastingWithInitialVelocity:v0];
 }
 
@@ -99,11 +99,24 @@ NS_INLINE double pinf(double min, double max, double v)
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didRestingTouch:(UITouch *)touch
 {
+    [self delayedStopCoasting];
 }
 
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer didStopRestingTouch:(UITouch *)touch
 {
     
+}
+
+- (void)delayedStopCoasting
+{
+    [self.coastingController stop];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:_cmd object:nil];
+}
+
+- (void)didStartTouchesForScrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedStopCoasting) object:nil];
+    [self performSelector:@selector(delayedStopCoasting) withObject:nil afterDelay:0.1];
 }
 
 #pragma mark - BSCoastingControllerDelegate

@@ -19,6 +19,8 @@ typedef NS_ENUM(NSInteger, BSScrubbingAxis) {
 - (void)scrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer willCoastWithInitialVelocity:(CGFloat)v0;
 - (void)didCancelScrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer;
 
+- (void)didStartTouchesForScrubbingGestureRecognizer:(BSScrubbingGestureRecognizer *)gestureRecognizer;
+
 @end
 
 @interface BSScrubbingGestureRecognizer : UIGestureRecognizer

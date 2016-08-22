@@ -127,11 +127,11 @@ NS_INLINE int sign(CGFloat x) {
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
 	if ([touches count] != 1) {
-        NSLog(@"** gesture FAILED due to bad touch count");
 		[self setState:UIGestureRecognizerStateFailed];
 		return;
 	}
     [self setTouching:YES];
+    [self.scrubbingGestureDelegate didStartTouchesForScrubbingGestureRecognizer:self];
 	[self _scheduleRestingTouch];
 	[self setLastTouch:[touches anyObject]];
 	[self setStartPosition:[self.lastTouch locationInView:nil]];
@@ -139,8 +139,6 @@ NS_INLINE int sign(CGFloat x) {
 	[self setPreviousVelocity:self.velocity];
 	[self setVelocity:0.0];
     [self setLastPosition:self.startPosition];
-    
-//    NSLog(@"touchesBegan: %@ (%d)", NSStringFromCGPoint([self.lastTouch locationInView:nil]), (int)self.state);
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
