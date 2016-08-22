@@ -50,18 +50,16 @@
     return [[BSMutableCoastingModel allocWithZone:zone] initWithCoefficientOfResistance:self.r minimumCoastingSpeed:self.minSpeed initialVelocity:self.initialVelocity];
 }
 
-// power_r returns pow(r, exponent) (but in much less time)
-- (double)power_r:(double)exponent
-{
-	return exp(_ln_r*exponent);
-}
-
 // Coasting
 // Drag due to friction is (generally) directly-proportional to velocity (but in the opposite direction).
 //
 // _coefficient of resistance_ (`r`) represents this ratio. It represents the reduction of speed per second.
 //
 // v(t) = v0 * r^t
+//
+// [Digression:  r^t can be calculated "slowly" via power(r, r); this is the same as exp(t*log(r)). Since
+//  r is fixed, and exp is much faster than power, we substitute exp(t * _ln_r). Remember that 'log' implements
+//  the natural logarithm (base-e, i.e. ln) rather than the common logarithm (base-10).]
 //
 // Some materials have a property where at very low speeds, friction actually spikes; this has
 // the effect of a object abruptly stopping when its speed drops below a certain threshold.
@@ -90,7 +88,7 @@
 
 - (double)velocityForTime:(CFTimeInterval)t
 {
-    double vt = _initialVelocity*[self power_r:t]; // v(t) = v(0)*r^t
+    double vt = _initialVelocity*exp(_ln_r*t); // v(t) = v(0)*r^t
     return fabs(vt) < _minSpeed ? 0 : vt;
 }
 
@@ -101,12 +99,13 @@
 
 - (double)distanceForTime:(CFTimeInterval)t
 {
-	return self.initialVelocity*([self power_r:t] - 1.0)/_ln_r;
+    // d(t) = v0 * (r^t - 1) / ln(r)
+	return _initialVelocity*(exp(_ln_r*t) - 1.0)/_ln_r;
 }
 
 - (double)stoppingDistance
 {
-    return [self distanceForTime:self.stoppingTime];
+    return [self distanceForTime:[self stoppingTime]];
 }
 
 // How long will it take to travel a specified distance?
@@ -137,6 +136,9 @@
 
 + (double)coefficientOfResistanceToEndAfter:(NSTimeInterval)desiredTime fromInitialSpeed:(double)initialSpeed minSpeed:(double)minSpeed
 {
+    // A handy utility for deriving a coefficent of resistance from a desired coasting time. The initialSpeed
+    // is typically the maximum initial speed allowed.
+    
     assert(initialSpeed > 0.0);
     assert(desiredTime > 0.0);
     // minSpeed = initialSpeed * r ^ desiredTime
@@ -148,6 +150,36 @@
     return exp(log(minSpeed / initialSpeed) / desiredTime);
 }
 
++ (double)coefficientOfResistanceToCoastDistance:(double)coastingDistance fromInitialSpeed:(double)initialSpeed minSpeed:(double)minSpeed
+{
+    // A handy utility for deriving a coefficient of resistance from a desired coasting distance.
+    // This requires a binary search to find the answer; for reasonable parameters this requires fewer than
+    // twenty iterations. The degenerate case takes 30 iterations (thanks to limited floating point precision).
+    
+    assert(initialSpeed > 0.0);
+    assert(coastingDistance > 0.0);
+    assert(minSpeed >= 0.0);
+    assert(initialSpeed > minSpeed); // duh
+    
+    // We do a binary search on r for the answer.
+    double minR = 0.0, maxR = 1.0, r;
+    double ln_minSpeed = log(minSpeed);
+    double ln_v0 = log(initialSpeed);
+    double stoppingDistance;
+    do {
+        r = 0.5*(minR + maxR); // start half-way in between
+        double ln_r = log(r);
+        NSTimeInterval stoppingTime = (ln_minSpeed - ln_v0) / ln_r;
+        stoppingDistance = initialSpeed * (exp(stoppingTime * ln_r) - 1.0) / ln_r;
+        if (stoppingDistance > coastingDistance) {
+            maxR = r;
+        } else if (stoppingDistance < coastingDistance) {
+            minR = r;
+        }
+        // The secondary check is necessary because floating point precision is finite.
+    } while (fabs(stoppingDistance - coastingDistance) > 0.5 && (maxR - minR) > 0.000000001);
+    return r;
+}
 
 @end
 
@@ -221,12 +253,6 @@
 
 - (CFTimeInterval)stoppingTime
 {
-//    // Calculate & cache the stopping time.
-//	if (_needTimeFinal) {
-//		_timeFinal = [self.model stoppingTime];
-//        _needTimeFinal = NO;
-//	}
-//	return _timeFinal;
     return [self.model stoppingTime];
 }
 
